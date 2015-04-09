@@ -6,6 +6,7 @@ sudo mkdir /var/www/
 sudo cp -R ../../yieldbuddy /var/www/yieldbuddy
 echo ""
 echo "Copying scripts to /home/pi/scripts..."
+sudo mkdir /home/pi/
 sudo mkdir /home/pi/scripts/
 sudo cp ./scripts/test_network.sh /home/pi/scripts/test_network.sh
 sudo cp ./scripts/test_yb.sh /home/pi/scripts/test_yb.sh
@@ -68,14 +69,6 @@ echo "Starting wireless network manager."
 sudo wicd-curses
 clear
 fi
-echo ""
-echo "Setting up serial device..."
-echo ""
-sudo apt-get -y install python-serial minicom
-echo ""
-echo "Attempting to test serial device... This can be very touchy!  SO READ THE INSTRUCTIONS CAREFULLY:"
-read -p "*** You will have to exit this program after around 10 seconds using ***CTRL+A (let go) then 'q'***, select 'YES' to *NOT* reset the device. Press any key to continue. ***" REPLY
-minicom -b 115200 -o -D /dev/ttyAMA0
 echo ""
 echo "Installing Web Server packages - this will take some time!"
 echo ""

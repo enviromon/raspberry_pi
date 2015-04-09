@@ -318,7 +318,7 @@ function TurnAuto(number, isAuto) {
   <tr>
     <td height="38" colspan="2"><table width="850" height="44" border="0">
 	 <tr>
-        <td height="40" valign="top"><p><strong>Sensor Information</strong></p>
+        <td height="70" valign="top"><p><strong>Sensor Information</strong></p>
           <p id="sensorInfo"></p>
         </td>
         <td align="right" valign="top">        

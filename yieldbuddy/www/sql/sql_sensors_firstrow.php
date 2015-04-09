@@ -13,13 +13,16 @@ $column_to_session_value = array(
     "6" => "Sensors_TDS2",
     "7" => "Sensors_CO2",
     "8" => "Sensors_Light",
+    "9" => "Sensors_Temp2",
+    "10" => "Sensors_Temp3",
+    "11" => "Sensors_Temp4",
 );
 
 while ($row = $results->fetchArray()) {
 //	var_dump($row);
 	
 	$i=0;
-	while($i < 9){
+	while($i < 12){
 //	echo "<p></p>";
 //	echo '\'';
 //	echo $column_to_session_value[$i];

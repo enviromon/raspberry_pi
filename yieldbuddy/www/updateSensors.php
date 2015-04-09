@@ -14,6 +14,18 @@ include $_SERVER['DOCUMENT_ROOT'].'/yieldbuddy/www/sql/sql_sensors_firstrow.php'
 	  echo "Temp: ";
 	  echo $Temp. "<br />";
 
+	  $Temp2=$_SESSION['Sensors_Temp2'];
+	  echo "Temp2: ";
+	  echo $Temp2. "<br />";
+
+	  $Temp3=$_SESSION['Sensors_Temp3'];
+	  echo "Temp3: ";
+	  echo $Temp3. "<br />";
+	  
+	  $Temp4=$_SESSION['Sensors_Temp4'];
+	  echo "Temp4: ";
+	  echo $Temp4. "<br />";
+	  
 	  $RH=$_SESSION['Sensors_RH'];
 	  echo "RH: ";
 	  echo $RH. "<br />";

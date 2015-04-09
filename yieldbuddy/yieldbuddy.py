@@ -127,6 +127,7 @@ def AESdecrypt(password, ciphertext, base64=False):
 	    startSalt = len(decodedCiphertext)-SALT_LENGTH
 	    data, iv, salt = decodedCiphertext[:startIv], decodedCiphertext[startIv:startSalt], decodedCiphertext[startSalt:]
 	    derivedKey = password
+       
 	    for i in range(0, DERIVATION_ROUNDS):
 	        derivedKey = hashlib.sha256(derivedKey+salt).digest()
 	    derivedKey = derivedKey[:KEY_SIZE]
@@ -137,10 +138,8 @@ def AESdecrypt(password, ciphertext, base64=False):
 	    return plaintext
 		#a = AESencrypt("password", "ABC")
 		#print AESdecrypt("password", a)
-	except AESdycrypt_Exception as detail:
-		print "\nError (AESencrypt): " + str(detail)
-		addMessageLog("Error (AESencrypt): " + str(detail))
-		printMessageLog()
+	except:
+		print "\nError (AESencrypt): "
 		return 0
 		
 		
@@ -280,7 +279,7 @@ def checkSerial():
 				addMessageLog("!!!Updating Firmware!!!")
 				printMessageLog()
 				ser.close()
-				f=os.system("sudo avrdude -V -F -c avrisp2 -p m2560 -P /dev/ttyACM1 -U flash:w:" + app_path + "/upload/firmware.cpp.hex")
+				f=os.system("sudo avrdude -V -F -c avrisp2 -p m2560 -P /dev/ttyACM0 -U flash:w:" + app_path + "/upload/firmware.cpp.hex")
 				serial.Serial(device_path,115200,timeout=15)
 			elif 'Set Raspberry Pi\'s Time to Arduino\'s Time' in Command:
 
@@ -428,13 +427,14 @@ def checkSerial():
 				timesync = 0
 			timesync = timesync + 1
 		elif 'Sensors' in line:
-			Sensors,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light=line.split(",")
+            Sensors,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light,Temp2,Temp3,Temp4=line.split(",")
+			#Sensors,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light=line.split(",")
 			Sensors = Sensors.replace("Read fail", "")
 			Light = Light.rstrip()
 			elapsedTime = now-startTime
 			elapsedSeconds = (elapsedTime.microseconds+(elapsedTime.days*24*3600+elapsedTime.seconds)*10**6)/10**6
 			print("\033[20;0H\r")
-			print("\033[20;0H(" + now.strftime("%Y/%m/%d %H:%M:%S") + ") Sensors: %s,%s,%s,%s,%s,%s,%s,%s"%(pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light))
+			print("\033[20;0H(" + now.strftime("%Y/%m/%d %H:%M:%S") + ") Sensors: %s,%s,%s,%s,%s,%s,%s,%s"%(pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light,Temp2,Temp3,Temp4))
 			now = datetime.now()
 			delta = float(now.strftime('%s')) - float(LastDataPoint_Time.strftime('%s'))
 			if (delta < 0):
@@ -446,12 +446,13 @@ def checkSerial():
 			if (delta >= TakeDataPoint_Every) or (Datapoint_count == 0 and first_timesync == True):
 				addMessageLog("Added a data point to the sensor values log.")
 				printMessageLog()
-				update_sql("INSERT INTO 'Sensors_Log' (Time,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light) VALUES ('" + now.strftime("%Y-%m-%d %H:%M:%S") + "'," + pH1 + "," + pH2+ "," + Temp + "," + RH + "," + TDS1 + "," + TDS2 + "," + CO2 + "," + Light + ")")
+				update_sql("INSERT INTO 'Sensors_Log' (Time,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light,Temp2,Temp3,Temp4) VALUES ('" + now.strftime("%Y-%m-%d %H:%M:%S") + "'," + pH1 + "," + pH2+ "," + Temp + "," + RH + "," + TDS1 + "," + TDS2 + "," + CO2 + "," + Light + "," + Temp2 + "," + Temp3 + "," + Temp4)")
 				LastDataPoint_Time = datetime.now()
 				timesync = 0 #do a timesync
 				Datapoint_count = Datapoint_count + 1
 			#SENSOR VALUES
-			update_sql("UPDATE `Sensors` SET pH1 = " + pH1 + ", pH2 = " + pH2+ ", Temp = " + Temp + ", RH = " + RH + ", TDS1 =" + TDS1 + ", TDS2 =" + TDS2 + ", CO2 = " + CO2 + ", Light = " + Light)
+            update_sql("UPDATE `Sensors` SET pH1 = " + pH1 + ", pH2 = " + pH2+ ", Temp = " + Temp + ", RH = " + RH + ", TDS1 =" + TDS1 + ", TDS2 =" + TDS2 + ", CO2 = " + CO2 + ", Light = " + Light + ", Temp2 = " + Temp2 + ", Temp3 = " + Temp3 + ", Temp4 = " + Temp4)
+			#update_sql("UPDATE `Sensors` SET pH1 = " + pH1 + ", pH2 = " + pH2+ ", Temp = " + Temp + ", RH = " + RH + ", TDS1 =" + TDS1 + ", TDS2 =" + TDS2 + ", CO2 = " + CO2 + ", Light = " + Light)
 			db.commit()
 		elif 'Relays' in line:
 			if oldRelays != line:
@@ -712,11 +713,11 @@ print 'Checking For Possible Serial Devices:'
 f=os.system("ls /dev/tty*")
 
 print '\r'
-print 'Enter the path to the serial device.  (/dev/ttyAMA0):'
+print 'Enter the path to the serial device.  (/dev/ttyACM0):'
 #device_path=raw_input()
-device_path='/dev/ttyAMA0'    #override device_path (no user input)
+device_path='/dev/ttyACM0'    #override device_path (no user input)
 if device_path == '':
-	device_path = '/dev/ttyAMA0'
+	device_path = '/dev/ttyACM0'
 device_path = device_path.strip("\n")
 try:
 	ser = serial.Serial(device_path,115200,timeout=10)

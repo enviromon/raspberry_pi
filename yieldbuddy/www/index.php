@@ -13,8 +13,8 @@ if(isset($_POST['login'])){
 		if($password == $xml->password){
 			session_start();
 			echo "yup";
-			//Load SQL Settings
-				  $file_address = fopen("settings/sql/address", "r") or exit("Unable to open file! 1");
+			/*//Load SQL Settings
+				  $file_address = fopen("settings/sql/address", "r") or exit("Unable to open file! 1 address error");
 				  $sql_address=fgets($file_address);
 				  $_SESSION['sql_address'] = $sql_address;
 				  fgets($file_address);
@@ -38,7 +38,7 @@ if(isset($_POST['login'])){
 				  fgets($file_database);
 				  fclose($file_database);
 			
-
+*/
 			$_SESSION['username'] = $username;
 			$xml = new SimpleXMLElement('<user></user>');	
 			header('Location: overview.php');
