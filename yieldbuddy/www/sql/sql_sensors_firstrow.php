@@ -9,13 +9,14 @@ $column_to_session_value = array(
     "2" => "Sensors_pH2",
     "3" => "Sensors_Temp",
     "4" => "Sensors_RH",
-    "5" => "Sensors_TDS1",
-    "6" => "Sensors_TDS2",
-    "7" => "Sensors_CO2",
-    "8" => "Sensors_Light",
-    "9" => "Sensors_Temp2",
-    "10" => "Sensors_Temp3",
-    "11" => "Sensors_Temp4",
+	"5" => "Sensors_Temp2",
+    "6" => "Sensors_Temp3",
+    "7" => "Sensors_Temp4",
+    "8" => "Sensors_TDS1",
+    "9" => "Sensors_TDS2",
+    "10" => "Sensors_CO2",
+    "11" => "Sensors_Light",
+
 );
 
 while ($row = $results->fetchArray()) {

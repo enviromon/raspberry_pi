@@ -228,6 +228,9 @@ def checkSerial():
 		global oldSetPoint_pH1
 		global oldSetPoint_pH2
 		global oldSetPoint_Temp
+		global oldSetPoint_Temp2
+		global oldSetPoint_Temp3
+		global oldSetPoint_Temp4
 		global oldSetPoint_RH
 		global oldSetPoint_TDS1
 		global oldSetPoint_TDS2
@@ -241,6 +244,9 @@ def checkSerial():
 		oldSetPoint_pH1 = " "
 		oldSetPoint_pH2 = " "
 		oldSetPoint_Temp = " "
+		oldSetPoint_Temp2 = " "
+		oldSetPoint_Temp3 = " "
+		oldSetPoint_Temp4 = " "
 		oldSetPoint_RH = " "
 		oldSetPoint_TDS1 = " "
 		oldSetPoint_TDS2 = " "
@@ -427,14 +433,18 @@ def checkSerial():
 				timesync = 0
 			timesync = timesync + 1
 		elif 'Sensors' in line:
-            Sensors,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light,Temp2,Temp3,Temp4=line.split(",")
+		try:
+			#Sensors,3.43,3.42,23.00,44.40,22.69,22.31,21.81,14.36,15.23,14.55,29.00
+			print("%s"%(line))
+			Sensors,pH1,pH2,Temp,RH,Temp2,Temp3,Temp4,TDS1,TDS2,CO2,Light=line.split(",")
 			#Sensors,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light=line.split(",")
 			Sensors = Sensors.replace("Read fail", "")
 			Light = Light.rstrip()
 			elapsedTime = now-startTime
 			elapsedSeconds = (elapsedTime.microseconds+(elapsedTime.days*24*3600+elapsedTime.seconds)*10**6)/10**6
 			print("\033[20;0H\r")
-			print("\033[20;0H(" + now.strftime("%Y/%m/%d %H:%M:%S") + ") Sensors: %s,%s,%s,%s,%s,%s,%s,%s"%(pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light,Temp2,Temp3,Temp4))
+
+			print("\033[20;0H(" + now.strftime("%Y/%m/%d %H:%M:%S") + ") Sensors: %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"%(pH1,pH2,Temp,,RH,Temp2,Temp3,Temp4,TDS1,TDS2,CO2,Light))
 			now = datetime.now()
 			delta = float(now.strftime('%s')) - float(LastDataPoint_Time.strftime('%s'))
 			if (delta < 0):
@@ -446,18 +456,24 @@ def checkSerial():
 			if (delta >= TakeDataPoint_Every) or (Datapoint_count == 0 and first_timesync == True):
 				addMessageLog("Added a data point to the sensor values log.")
 				printMessageLog()
-				update_sql("INSERT INTO 'Sensors_Log' (Time,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light,Temp2,Temp3,Temp4) VALUES ('" + now.strftime("%Y-%m-%d %H:%M:%S") + "'," + pH1 + "," + pH2+ "," + Temp + "," + RH + "," + TDS1 + "," + TDS2 + "," + CO2 + "," + Light + "," + Temp2 + "," + Temp3 + "," + Temp4)")
+				update_sql("INSERT INTO 'Sensors_Log' (Time,pH1,pH2,Temp,RH,TDS1,TDS2,CO2,Light,Temp2,Temp3,Temp4) VALUES ('" + now.strftime("%Y-%m-%d %H:%M:%S") + "'," + pH1 + "," + pH2+ "," + Temp + "," + RH + "," + TDS1 + "," + TDS2 + "," + CO2 + "," + Light + "," + Temp2 + "," + Temp3 + "," + Temp4'))
 				LastDataPoint_Time = datetime.now()
 				timesync = 0 #do a timesync
 				Datapoint_count = Datapoint_count + 1
 			#SENSOR VALUES
-            update_sql("UPDATE `Sensors` SET pH1 = " + pH1 + ", pH2 = " + pH2+ ", Temp = " + Temp + ", RH = " + RH + ", TDS1 =" + TDS1 + ", TDS2 =" + TDS2 + ", CO2 = " + CO2 + ", Light = " + Light + ", Temp2 = " + Temp2 + ", Temp3 = " + Temp3 + ", Temp4 = " + Temp4)
+			update_sql("UPDATE `Sensors` SET pH1 = " + pH1 + ", pH2 = " + pH2+ ", Temp = " + Temp + ", RH = " + RH + ", Temp2 = " + Temp2 + ", Temp3 = " + Temp3 + ", Temp4 = " + Temp4 + ", TDS1 =" + TDS1 + ", TDS2 =" + TDS2 + ", CO2 = " + CO2 + ", Light = " + Light)
+			print(update_sql)
 			#update_sql("UPDATE `Sensors` SET pH1 = " + pH1 + ", pH2 = " + pH2+ ", Temp = " + Temp + ", RH = " + RH + ", TDS1 =" + TDS1 + ", TDS2 =" + TDS2 + ", CO2 = " + CO2 + ", Light = " + Light)
 			db.commit()
+		except:
+		ValueError as detail:
+		print "\nError: ", detail
+		addMessageLog("Error: " + str(detail))
+		printMessageLog()
 		elif 'Relays' in line:
 			if oldRelays != line:
 				oldRelays = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				Relays,Relay1,Relay2,Relay3,Relay4,Relay5,Relay6=line.split(",")
 				Relays = Relays.replace("Read fail", "")
 				Relay6 = Relay6.rstrip()
@@ -468,7 +484,7 @@ def checkSerial():
 				db.commit()
 		elif 'Relay_isAuto' in line:
 			if oldRelay_isAuto != line:
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				oldRelay_isAuto = line
 				Relay_isAuto,Relay1_isAuto,Relay2_isAuto,Relay3_isAuto,Relay4_isAuto,Relay5_isAuto,Relay6_isAuto=line.split(",")
 				Relay_isAuto = Relay_isAuto.replace("Read fail", "")
@@ -481,7 +497,7 @@ def checkSerial():
 		elif 'Light_Schedule' in line:
 			if oldLight_Schedule != line:
 				oldLight_Schedule = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				Lighting,Light_ON_hour,Light_ON_min,Light_OFF_hour,Light_OFF_min=line.split(",")
 				Lighting = Lighting.replace("Read fail", "")
 				Light_OFF_min = Light_OFF_min.rstrip()
@@ -492,7 +508,7 @@ def checkSerial():
 		elif 'Watering_Schedule' in line:
 			if oldWatering_Schedule != line:
 				oldWatering_Schedule = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				Watering,Pump_start_hour,Pump_start_min,Pump_start_isAM,Pump_every_hours,Pump_every_mins,Pump_for,Pump_times=line.split(",")
 				Watering = Watering.replace("Read fail", "")
 				Pump_times = Pump_times.rstrip()
@@ -503,7 +519,7 @@ def checkSerial():
 		elif 'SetPoint_pH1' in line:
 			if oldSetPoint_pH1 != line:
 				oldSetPoint_pH1 = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				SetPoint_pH1,pH1Value_Low,pH1Value_High,pH1_Status=line.split(",")
 				SetPoint_pH1 = SetPoint_pH1.replace("Read fail", "")
 				pH1_Status = pH1_Status.rstrip()
@@ -526,7 +542,7 @@ def checkSerial():
 		elif 'SetPoint_pH2' in line:
 			if oldSetPoint_pH2 != line:
 				oldSetPoint_pH2 = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				SetPoint_pH2,pH2Value_Low,pH2Value_High,pH2_Status=line.split(",")
 				SetPoint_pH2 = SetPoint_pH2.replace("Read fail", "")
 				pH2_Status = pH2_Status.rstrip()
@@ -549,7 +565,7 @@ def checkSerial():
 		elif 'SetPoint_Temp' in line:
 			if oldSetPoint_Temp != line:
 				oldSetPoint_Temp = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				SetPoint_Temp,TempValue_Low,TempValue_High,Heater_ON,Heater_OFF,AC_ON,AC_OFF,Temp_Status=line.split(",")
 				SetPoint_Temp = SetPoint_Temp.replace("Read fail", "")
 				Temp_Status = Temp_Status.rstrip()
@@ -572,7 +588,7 @@ def checkSerial():
 		elif 'SetPoint_RH' in line:
 			if oldSetPoint_RH != line:
 				oldSetPoint_RH = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				SetPoint_RH,RHValue_Low,RHValue_High,Humidifier_ON,Humidifier_OFF,Dehumidifier_ON,Dehumidifier_OFF,RH_Status=line.split(",")
 				SetPoint_RH = SetPoint_RH.replace("Read fail", "")
 				RH_Status = RH_Status.rstrip()
@@ -595,7 +611,7 @@ def checkSerial():
 		elif 'SetPoint_TDS1' in line:
 			if oldSetPoint_TDS1 != line:
 				oldSetPoint_TDS1 = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				SetPoint_TDS1,TDS1Value_Low,TDS1Value_High,NutePump1_ON,NutePump1_OFF,MixPump1_Enabled,TDS1_Status=line.split(",")
 				SetPoint_TDS1 = SetPoint_TDS1.replace("Read fail", "")
 				TDS1_Status = TDS1_Status.rstrip()
@@ -618,7 +634,7 @@ def checkSerial():
 		elif 'SetPoint_TDS2' in line:
 			if oldSetPoint_TDS2 != line:
 				oldSetPoint_TDS2 = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				SetPoint_TDS2,TDS2Value_Low,TDS2Value_High,NutePump2_ON,NutePump2_OFF,MixPump2_Enabled,TDS2_Status=line.split(",")
 				SetPoint_TDS2 = SetPoint_TDS2.replace("Read fail", "")
 				TDS2_Status = TDS2_Status.rstrip()
@@ -641,7 +657,7 @@ def checkSerial():
 		elif 'SetPoint_CO2' in line:
 			if oldSetPoint_CO2 != line:
 				oldSetPoint_CO2 = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				SetPoint_CO2,CO2Value_Low,CO2Value_High,CO2_ON,CO2_OFF,CO2_Enabled,CO2_Status=line.split(",")
 				SetPoint_CO2 = SetPoint_CO2.replace("Read fail", "")
 				CO2_Status = CO2_Status.rstrip()
@@ -664,7 +680,7 @@ def checkSerial():
 		elif 'SetPoint_Light' in line:
 			if oldSetPoint_Light != line:
 				oldSetPoint_Light = line
-				#print("%s"%(line))  For Debugging
+				print("%s"%(line))  For Debugging
 				SetPoint_Light,LightValue_Low,LightValue_High,Light_Status=line.split(",")
 				SetPoint_Light = SetPoint_Light.replace("Read fail", "")
 				Light_Status = Light_Status.rstrip()
@@ -688,7 +704,7 @@ def checkSerial():
 		
 			
 	except ValueError as detail:
-		#print "\nError: ", detail
+		print "\nError: ", detail
 		addMessageLog("Error: " + str(detail))
 		printMessageLog()
 #			time.sleep(5)
